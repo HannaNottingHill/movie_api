@@ -7,6 +7,7 @@ const server = http.createServer((request, response) => {
   logRequest(parsedUrl.pathname);
   if (parsedUrl.pathname === "/documentation") {
     fs.readFile("documentation.html", (error, content) => {
+      console.log("hi");
       if (error) {
         response.writeHead(500);
         response.end("Internet Server Error");
