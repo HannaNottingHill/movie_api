@@ -11,17 +11,58 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
   flags: "a",
 });
 
+const movies = [
+  {
+    title: "The Best of Me",
+    description: "Description of Movie",
+    genre: "Genre",
+    director: "Director",
+    imageUrl: "URL 1",
+  },
+  {
+    title: "Equalizer",
+    description: "Description of Movie",
+    genre: "Genre",
+    director: "Director",
+    imageUrl: "URL 2",
+  },
+  {
+    title: "Inception",
+    description: "Description of Movie",
+    genre: "Genre",
+    director: "Director",
+    imageUrl: "URL 3",
+  },
+  {
+    title: "The Godfather",
+    description: "Description of Movie ",
+    genre: "Genre",
+    director: "Director",
+    imageUrl: "URL 4",
+  },
+  {
+    title: "Die Hard",
+    description: "Description of Movie ",
+    genre: "Genre",
+    director: "Director",
+    imageUrl: "URL 5",
+  },
+];
 //set up logger
 app.use(morgan("combined", { stream: accessLogStream }));
 
 //Get a list of ALL movies
 app.get("/movies", (req, res) => {
-  res.json("Successful GET request returning data on all the students");
+  res.json(movies);
 });
 
 //Get data about a single movie by title
 app.get("/movies/:title", (req, res) => {
-  res.send("Successful GET request returning data on a single movie");
+  res.json(
+    movies.find((movie) => {
+      return movie.title === req.params.name;
+    })
+  );
 });
 
 //Get data about genre by title
