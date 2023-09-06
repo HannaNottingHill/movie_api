@@ -14,23 +14,49 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
 //set up logger
 app.use(morgan("combined", { stream: accessLogStream }));
 
-//GET with "/movie endpont"
-//returns JSON topMovies
-
+//Get a list of ALL movies
 app.get("/movies", (req, res) => {
-  const topMovies = [
-    { title: "Aliens", year: "1986" },
-    { title: "Star Wars: Episode IV - A New Hope", year: "1977" },
-    { title: "Terminator 2: Judgment Day", year: "1991" },
-    { title: "The Matrix", year: "1999" },
-    { title: "Inception", year: "2010" },
-    { title: "Dark Knight", year: "2008" },
-  ];
-  res.json(topMovies);
+  res.json("Successful GET request returning data on all the students");
 });
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the movie club!");
+//Get data about a single movie by title
+app.get("/movies/:title", (req, res) => {
+  res.send("Successful GET request returning data on a single movie");
+});
+
+//Get data about genre by title
+app.get("/movies/:title/:genre", (req, res) => {
+  res.send("Successful GET request returning data on genre");
+});
+
+//Get data about the director by name
+app.get("/directorNames", (req, res) => {
+  res.send("Successful GET request returning data on director");
+});
+
+//Add a new user !!
+app.post("/users", (req, res) => {
+  res.send("Successful POST request, new user successfully created");
+});
+
+//Update a user information (username)
+app.put("/users", (req, res) => {
+  res.send("Successful PUT, information successfully updated");
+});
+
+//Add a movie to a favorites list
+app.put("/users/:favorite", (req, res) => {
+  res.send("Successful PUT request, favorite added");
+});
+
+//Remove a movie from the favorites list
+app.delete("/users/:favorite", (req, res) => {
+  res.send("Successful DELETE request, favorite removed");
+});
+
+//Remove users account
+app.delete("/users", (req, res) => {
+  res.send("Successful DELETE request, account deleted");
 });
 
 app.use(express.static("public"));
