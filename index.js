@@ -1,9 +1,42 @@
 const express = require("express");
-const morgan = require("morgan");
+const bodyParser = require("body-parser");
+const uuid = require("uuid");
 const fs = require("fs");
 const path = require("path");
+
+const morgan = require("morgan");
 const app = express();
-const port = 3030;
+const mongoose = require("mongoose");
+const Models = require("./models.js/models");
+
+const port = process.env.PORT || 3000;
+
+const Movies = Models.Movie;
+const Users = Models.User;
+const Genre = Models.Genre;
+const Director = Models.Director;
+
+//const path = require("path");
+//const { Model } = require("mongoose");
+
+//app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(express.json());
+//app.use(express.urlencoded({ extended: true }));
+
+mongoose.connect("mongodb://localhost:27017/cfDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+app.use(bodyParser.json());
+
+// log request to server
+app.use(morgan("common"));
+
+//default text response when at /
+app.get("/", (req, res) => {
+  res.send("Welcome to MoviesApp!");
+});
 
 // create a write stream (in append mode)
 // a ‘log.txt’ file is created in root directory
@@ -11,43 +44,6 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, "log.txt"), {
   flags: "a",
 });
 
-const movies = [
-  {
-    title: "The Best of Me",
-    description: "Description of Movie",
-    genre: "Genre",
-    director: "Director",
-    imageUrl: "URL 1",
-  },
-  {
-    title: "Equalizer",
-    description: "Description of Movie",
-    genre: "Genre",
-    director: "Director",
-    imageUrl: "URL 2",
-  },
-  {
-    title: "Inception",
-    description: "Description of Movie",
-    genre: "Genre",
-    director: "Director",
-    imageUrl: "URL 3",
-  },
-  {
-    title: "The Godfather",
-    description: "Description of Movie ",
-    genre: "Genre",
-    director: "Director",
-    imageUrl: "URL 4",
-  },
-  {
-    title: "Die Hard",
-    description: "Description of Movie ",
-    genre: "Genre",
-    director: "Director",
-    imageUrl: "URL 5",
-  },
-];
 //set up logger
 app.use(morgan("combined", { stream: accessLogStream }));
 
@@ -76,8 +72,55 @@ app.get("/directorNames", (req, res) => {
 });
 
 //Add a new user !!
-app.post("/users", (req, res) => {
-  res.send("Successful POST request, new user successfully created");
+app.post("/users", async (req, res) => {
+  await Users.findOne({ Username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + "already exists");
+      } else {
+        Users.create({
+          Username: req.body.Username,
+          Password: req.body.Password,
+          Email: req.body.Email,
+          Birthday: req.body.Birthday,
+        })
+          .then((user) => {
+            res.status(201).json(user);
+          })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send("Error: " + error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error: " + error);
+    });
+});
+
+// Get all users
+app.get("/users", async (req, res) => {
+  await Users.find()
+    .then((users) => {
+      res.status(201).json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
+});
+
+// Get a user by username
+app.get("/users/:Username", async (req, res) => {
+  await Users.findOne({ Username: req.params.Username })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Update a user information (username)
@@ -109,4 +152,8 @@ app.listen(port, () => {
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("Something broken!");
+});
+
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });
